@@ -143,6 +143,28 @@
             border-bottom: 1px solid #eee;
         }
     }
+    .question {
+    margin-bottom: 20px;  /* Adds space between question and options */
+    font-size: 1.1em;     /* Optional: makes question text slightly larger */
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;            /* Space between options */
+    margin-top: 20px;     /* Additional space after question */
+}
+
+/* For mobile devices */
+@media screen and (max-width: 768px) {
+    .question {
+        margin-bottom: 15px;  /* Slightly less space on mobile */
+    }
+    
+    .options {
+        margin-top: 15px;
+    }
+}
 
 /* Add this to ensure the footer doesn't overlap content */
 .container {
