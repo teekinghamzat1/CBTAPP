@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Question System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .timer {
+            text-align: right;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .option:hover {
+            background: #f5f5f5;
+        }
+
+        .option.selected {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background: #2196f3;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+            display: none;
+        }
+        .footer {
+    background-color: #2196f3;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    font-size: 1em;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+@media screen and (max-width: 768px) {
+        body {
+            padding: 10px;
+            margin: 0;
+            max-width: 100%;
+        }
+        
+        .container {
+            padding: 15px;
+            margin: 10px;
+            border-radius: 8px;
+        }
+        
+        .question-container {
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+        
+        .options {
+            gap: 8px;
+        }
+        
+        .option {
+            padding: 12px;
+            font-size: 16px;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+        
+        .navigation {
+            margin-top: 20px;
+            padding: 10px 0;
+        }
+        
+        button {
+            min-width: 100px;
+            padding: 12px 20px;
+            font-size: 16px;
+        }
+        
+        .timer {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 10px;
+            z-index: 100;
+            border-bottom: 1px solid #eee;
+        }
+    }
+
+/* Add this to ensure the footer doesn't overlap content */
+.container {
+    margin-bottom: 60px; /* Adjust this value based on your footer height */
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="timer" id="timer">Time Remaining: 30:00</div>
+        <div class="question-container" id="questionContainer">
+            <div class="question-number" id="questionNumber"></div>
+            <div class="question" id="question"></div>
+            <div class="options" id="options"></div>
+        </div>
+        <div class="navigation">
+            <button id="prevBtn" onclick="previousQuestion()">Previous</button>
+            <button id="nextBtn" onclick="nextQuestion()">Next</button>
+            <button id="submitBtn" onclick="submitTest()" style="display: none;">Submit</button>
+        </div>
+        <div class="result" id="result"></div>
+    </div>
+
+            
+        <footer class="footer">
+            <p>&copy; 2024 Developed by Hamzat - 07062964817</p>
+        </footer>
+        </div>
+    </div>
+
+    <script>
+        // Embedded questions array
+        const questions = [
+            {
+                question: "The following are characteristics of a good research EXCEPT",
+                options: {
+                    A: "it must be objective",
+                    B: "it must be subjective",
+                    C: "it must be systematic",
+                    D: "it must be valid"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Which of the following is NOT a major problem of educational research in Developing nations of the world?",
+                options: {
+                    A: "Human factor",
+                    B: "Measurement",
+                    C: "Researcher factor",
+                    D: "Technique"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "The three basic types of research in education based on method are",
+                options: {
+                    A: "Experimental, descriptive and ex-post factor",
+                    B: "Experimental, survey and historical",
+                    C: "Experimental, descriptive and causal comparative",
+                    D: "Descriptive, causal comparative and historical"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Theoretical framework in research implies",
+                options: {
+                    A: "hypotheses relevant to the study",
+                    B: "laws relevant to the study",
+                    C: "theories relevant to the study",
+                    D: "concepts on which the study stands"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "The following are characteristics of a good research EXCEPT",
+                options: {
+                    A: "it must be objective",
+                    B: "it must be subjective",
+                    C: "it must be systematic",
+                    D: "it must be valid"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Which of the following is NOT a major problem of educational research in Developing nations of the world?",
+                options: {
+                    A: "Human factor",
+                    B: "Measurement",
+                    C: "Researcher factor",
+                    D: "Technique"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "The three basic types of research in education based on method are",
+                options: {
+                    A: "Experimental, descriptive and ex-post factor",
+                    B: "Experimental, survey and historical",
+                    C: "Experimental, descriptive and causal comparative",
+                    D: "Descriptive, causal comparative and historical"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Theoretical framework in research implies",
+                options: {
+                    A: "hypotheses relevant to the study",
+                    B: "laws relevant to the study",
+                    C: "theories relevant to the study",
+                    D: "concepts on which the study stands"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "The following are attributes of a good educational research EXCEPT",
+                options: {
+                    A: "it must be novel",
+                    B: "it must be valid",
+                    C: "it must be significant",
+                    D: "it must be timely"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Educational research is scientific because",
+                options: {
+                    A: "it follows empirical procedure",
+                    B: "it addresses scientific problems",
+                    C: "it draws conclusion based on concrete evidence",
+                    D: "it provides background information to the research problem"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Research today is different from ancient research in terms of",
+                options: {
+                    A: "time lag",
+                    B: "input",
+                    C: "personality",
+                    D: "procedure"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Research is an enterprise that",
+                options: {
+                    A: "proffers an irreversible solution to a problem",
+                    B: "proffers a solution to a problem only to open another",
+                    C: "keeps academics on their toes for promotion",
+                    D: "improves economic standard of individual"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "With education research we can safely claim that",
+                options: {
+                    A: "half of the 'unknowns' in education is known today",
+                    B: "one-third of the 'unknowns' in education is known today",
+                    C: "infinitesimal proportion of the 'unknowns' in education is known today",
+                    D: "one quarter of the 'unknowns' in education is known today"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "For an educational research to be objective, it must",
+                options: {
+                    A: "promote multiple choice test items",
+                    B: "be free from human bias",
+                    C: "be reliable",
+                    D: "be theoretical"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Which of the following is NOT a form a research problem can take?",
+                options: {
+                    A: "Variable linkage",
+                    B: "Missing link",
+                    C: "Unsatisfactory state of affairs",
+                    D: "Imbalance"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Research projects, thesis, journals and newsletters are all",
+                options: {
+                    A: "primary sources of literature",
+                    B: "secondary sources of literature",
+                    C: "tertiary sources of literature",
+                    D: "absolute sources of literature"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Which of the following is not a reason for studying educational research?",
+                options: {
+                    A: "To become 'research literate'",
+                    B: "To improve critical thinking skills",
+                    C: "To learn how to design and conduct research",
+                    D: "It is a prerequisite for awarding a degree"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "The null hypothesis implies the",
+                options: {
+                    A: "positive position of the researcher",
+                    B: "negative position of the researcher",
+                    C: "neutral position of the researcher",
+                    D: "nil position of the researcher"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Expression of variable linkage is described as",
+                options: {
+                    A: "research design",
+                    B: "research methodology",
+                    C: "research instrument",
+                    D: "research hypothesis"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Proposal writing in educational research covers",
+                options: {
+                    A: "chapters 1 and 2",
+                    B: "chapters 1, 2 and 3",
+                    C: "chapter 1 only",
+                    D: "chapter 3 only"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Which of the following comes last in proposal writing in educational research?",
+                options: {
+                    A: "appendices",
+                    B: "references",
+                    C: "bibliography",
+                    D: "data analysis"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "In educational research, the concise summary of the whole report is indicated as",
+                options: {
+                    A: "dedication",
+                    B: "abstract",
+                    C: "acknowledgements",
+                    D: "list of figures"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "All the following are included in chapter 5 of the research project in education EXCEPT",
+                options: {
+                    A: "implications of findings",
+                    B: "conclusion",
+                    C: "results",
+                    D: "recommendations"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Which of the following is NOT a disadvantage of the rating scale?",
+                options: {
+                    A: "Halo effect",
+                    B: "Personal biases",
+                    C: "Prone to faking",
+                    D: "More flexible to use"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Action research in education is most concerned with",
+                options: {
+                    A: "experimental studies",
+                    B: "laboratory studies",
+                    C: "correlational studies",
+                    D: "immediate classroom problems"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "The researcher shows his/her heart of gratitude to those who assisted him/her during the study under",
+                options: {
+                    A: "dedication",
+                    B: "acknowledgements",
+                    C: "certification",
+                    D: "preface"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "All the following are benefits derived from educational researches EXCEPT",
+                options: {
+                    A: "Enhance the teachers' presentation of methodology only",
+                    B: "enhance learners' performance and foster teachers presentation",
+                    C: "new ideas and relevant information on the identified problem are discovered",
+                    D: "establishment of creative technological reasoning"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Which of the following should be carried out in making research instrument valid and reliable?",
+                options: {
+                    A: "Validation and reliability",
+                    B: "Validation",
+                    C: "Reliability",
+                    D: "Content"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Which of the following is NOT part of the sources of research topic in education?",
+                options: {
+                    A: "Personal experience",
+                    B: "Intuition",
+                    C: "Literature review",
+                    D: "Project supervisor"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "The contribution intended of a research should be provided under",
+                options: {
+                    A: "statement of the problem",
+                    B: "purpose of the study",
+                    C: "significance of the study",
+                    D: "background to the study"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "In the preliminary part of project writing in education, which of the following should NOT be included?",
+                options: {
+                    A: "abstract",
+                    B: "certification",
+                    C: "definition of terms",
+                    D: "dedication"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Under which sub heading is the terms used in the study be explained?",
+                options: {
+                    A: "Review of literature",
+                    B: "Definition of terms",
+                    C: "Scope of the study",
+                    D: "Instrumentation"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "In writing project report in education chapter two is usually centred on",
+                options: {
+                    A: "theoretical framework",
+                    B: "empirical studies",
+                    C: "research design",
+                    D: "literature review"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Which of the following is NOT part of research methodology?",
+                options: {
+                    A: "Research design",
+                    B: "Data analysis and findings",
+                    C: "Instrumentation",
+                    D: "Data analysis"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "A research that is aimed at studying cause and effect relationships through active manipulation of an independent variable is referred as",
+                options: {
+                    A: "Experimental",
+                    B: "Case study",
+                    C: "Evaluation",
+                    D: "Action"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Which of the following variables may compete with the independent variable in explaining the outcome of an experiment?",
+                options: {
+                    A: "Mediating variable",
+                    B: "Categorical variable",
+                    C: "Extraneous variable",
+                    D: "Dependent variable"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Which of the following qualitative research focuses on describing the culture of a group of people?",
+                options: {
+                    A: "Phenomenology",
+                    B: "Historical research",
+                    C: "Ethnography",
+                    D: "Case study"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Research that is based on the collection of observable data is known as",
+                options: {
+                    A: "Empirical",
+                    B: "Case study",
+                    C: "Action",
+                    D: "Evaluation"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Empirical research cannot provide answers to the following except",
+                options: {
+                    A: "Ultimate question",
+                    B: "metaphysical question",
+                    C: "Ethical questions",
+                    D: "Cause effect"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Too much review may make a researcher 'myopic' in",
+                options: {
+                    A: "Quantitative study",
+                    B: "Qualitative study",
+                    C: "Experimental study",
+                    D: "Case study"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "On which of the following does the researcher directly 'builds' on past research?",
+                options: {
+                    A: "Case study",
+                    B: "Qualitative Study",
+                    C: "Quantitative study",
+                    D: "Historical study"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "In which of the following do research problems tend to focus on exploring a process, an event, or a phenomenon?",
+                options: {
+                    A: "Experimental",
+                    B: "Qualitative",
+                    C: "Quantitative",
+                    D: "Empirical"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "The researcher's prediction of the relationship that exists among the variables being investigated is referred to as",
+                options: {
+                    A: "Observation",
+                    B: "Hypothesis",
+                    C: "Question",
+                    D: "Research"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Which of the following ethical approaches state that we should identify and use a Universal code when making ethical decisions?",
+                options: {
+                    A: "Deontological",
+                    B: "Ethical skepticism",
+                    C: "Utilitarianism",
+                    D: "Phenomenology"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Which of the following is a null hypothesis?",
+                options: {
+                    A: "to determine the price",
+                    B: "what is the price level",
+                    C: "the price level is not high",
+                    D: "the price level is related to the quantity demanded"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "One of the following NOT a chapter in a research project",
+                options: {
+                    A: "methodology",
+                    B: "literature review",
+                    C: "data presentation and analysis",
+                    D: "accidental sampling"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "All of the following are elements of introduction to a report EXCEPT",
+                options: {
+                    A: "definition of terms",
+                    B: "plan of the study",
+                    C: "purpose of the study",
+                    D: "abstract"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "A research problem may be inspired by all the following EXCEPT",
+                options: {
+                    A: "experience",
+                    B: "theoretical sources",
+                    C: "consultation with experts",
+                    D: "a settled issue"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Which of the following is NOT a source of literature review?",
+                options: {
+                    A: "unpublished projects",
+                    B: "journals",
+                    C: "magazines and news papers",
+                    D: "bibliographies"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Literally, the term research means",
+                options: {
+                    A: "to gather",
+                    B: "to find",
+                    C: "to search for",
+                    D: "logically inquire"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Classification of research according to method include all the following EXCEPT",
+                options: {
+                    A: "descriptive research",
+                    B: "survey research",
+                    C: "basic research",
+                    D: "case-study research"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "A researcher obtain his data or information from all these EXCEPT",
+                options: {
+                    A: "interview",
+                    B: "telephone",
+                    C: "focus group discussion",
+                    D: "personal view"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "The list of sources that are cited in a research report is called",
+                options: {
+                    A: "citation",
+                    B: "footnotes",
+                    C: "biography",
+                    D: "reference"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "To determine research problem, the researcher is mostly involved in",
+                options: {
+                    A: "critical thinking",
+                    B: "looking through past topics",
+                    C: "searching literature",
+                    D: "keeping note"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "A critical evaluation of past but related study, which is of relevance to the researcher is the",
+                options: {
+                    A: "literature",
+                    B: "purpose",
+                    C: "significance",
+                    D: "statement of the problem"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Reason for conducting research is",
+                options: {
+                    A: "to be current",
+                    B: "to draw conclusion",
+                    C: "to analyse data",
+                    D: "to resolve some problems"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "The major methods of referencing are:",
+                options: {
+                    A: "APA and Kate Turabian",
+                    B: "Harvard and Chicago",
+                    C: "Chicago and APA",
+                    D: "APA, Kate Turabian and MLA"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "A research proposal is:",
+                options: {
+                    A: "the plan of the research",
+                    B: "a direction-giving instrument of the intending research",
+                    C: "what the researcher wants to do",
+                    D: "a synoptic presentation of intention and methodology"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Research proposal consist of",
+                options: {
+                    A: "Chapter 1, 2, 3 and references",
+                    B: "Chapter 1, 2, 3 and Appendix",
+                    C: "Chapter 1, 2, 3, references and appendix",
+                    D: "Chapter 1, 2 and 3"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "An abstract in research means:",
+                options: {
+                    A: "summary of the research report",
+                    B: "a brief summary of the research work",
+                    C: "the layout of the research report",
+                    D: "a preamble of the research report"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Which of these research types is undertaken to see if a programme is meeting its objectives",
+                options: {
+                    A: "basic research",
+                    B: "applied research",
+                    C: "evaluation research",
+                    D: "action research"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "I am a research type concerned with local problems and conducted to solve classroom problems. What am I?",
+                options: {
+                    A: "basic research",
+                    B: "research and development",
+                    C: "evaluation research",
+                    D: "action research"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Which of these is not a Primary source of data?",
+                options: {
+                    A: "eyewitness account",
+                    B: "original document",
+                    C: "artifacts",
+                    D: "encyclopedia"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "In which of these research types is the researcher not directly or physically involved in the situation under study?",
+                options: {
+                    A: "experimental design",
+                    B: "survey design",
+                    C: "historical design",
+                    D: "correlation design"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Which of these is a technique in Procedure-based survey",
+                options: {
+                    A: "Questionnaire survey",
+                    B: "Dental survey",
+                    C: "Correlational survey",
+                    D: "descriptive survey"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Which of these is a purpose-based survey",
+                options: {
+                    A: "Public opinion survey",
+                    B: "Interview survey",
+                    C: "Panel survey",
+                    D: "Observation survey"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "A researcher teases out antecedents of events that have happened in order to explain the succedent. What type of research is it?",
+                options: {
+                    A: "Historical researcher",
+                    B: "Survey",
+                    C: "Experimental",
+                    D: "Ex post facto"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Retrospective search for causal linkage with a subsequent outcome is in the premises of",
+                options: {
+                    A: "Survey",
+                    B: "Ex post facto",
+                    C: "Quasi experimental Research",
+                    D: "Historical Research"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "The authenticity or genuineness of the data source is within the premise of",
+                options: {
+                    A: "external criticism",
+                    B: "internal criticism",
+                    C: "ex post facto",
+                    D: "intentional criticism"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Which type of educational research aims at the advancement of knowledge?",
+                options: {
+                    A: "applied research",
+                    B: "basic research",
+                    C: "action research",
+                    D: "research and development"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "What type of educational research is carried out in a sterile environment?",
+                options: {
+                    A: "historical research",
+                    B: "experimental research",
+                    C: "survey research",
+                    D: "action research"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Which of these is concerned with developing and testing more efficacious educational products?",
+                options: {
+                    A: "Basic Research",
+                    B: "Research & Development",
+                    C: "Evaluation Research",
+                    D: "Action Research"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Systematic investigation and study of materials and sources to establish facts is",
+                options: {
+                    A: "Experiment",
+                    B: "Development",
+                    C: "Research",
+                    D: "Examination"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Which of these is also called a hunch or tentative guess?",
+                options: {
+                    A: "Hypothesis",
+                    B: "theory",
+                    C: "Law",
+                    D: "Research"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Which of these is NOT true of scientific research?",
+                options: {
+                    A: "It is empirical",
+                    B: "It cannot be replicated",
+                    C: "It is cumulative",
+                    D: "It is non ethical"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Educational research can achieve the following except",
+                options: {
+                    A: "Improve practice",
+                    B: "Address gaps in knowledge",
+                    C: "Revise theories and practice",
+                    D: "Accelerate depletion of knowledge"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Which of these is the first stage in Educational Research?",
+                options: {
+                    A: "Review of Literature",
+                    B: "Problem Identification",
+                    C: "Data Collection",
+                    D: "Reporting Results"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Which of these can be considered as the last stage in an educational research process?",
+                options: {
+                    A: "Review of Literature",
+                    B: "Problem Identification",
+                    C: "Data Collection",
+                    D: "Reporting results"
+                },
+                correct_answer: "D"
+            },
+            {
+                question: "Review of literature involves which of these?",
+                options: {
+                    A: "Searching all the journals in the library",
+                    B: "reading and photocopying materials",
+                    C: "Searching for related materials",
+                    D: "Rewriting literatures already in publications"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "The main purpose of data analysis is",
+                options: {
+                    A: "answer research questions or test hypotheses",
+                    B: "to always reject research results",
+                    C: "to identify problems related to the title",
+                    D: "to eliminate doubts related to the title"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Educational research is usually classified on the bases on -------and -------",
+                options: {
+                    A: "type and function",
+                    B: "purpose and method",
+                    C: "process and product",
+                    D: "size and complexity"
+                },
+                correct_answer: "B"
+            },
+            {
+                question: "Which of these is a method-based research?",
+                options: {
+                    A: "Applied research",
+                    B: "Basic research",
+                    C: "Historical research",
+                    D: "Evaluation"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Which of these is not a purpose-based research?",
+                options: {
+                    A: "Applied research",
+                    B: "Basic research",
+                    C: "Historical research",
+                    D: "Evaluation"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Eyewitness reports belong to?",
+                options: {
+                    A: "Primary source",
+                    B: "Secondary source",
+                    C: "Nursery source",
+                    D: "Tertiary source"
+                },
+                correct_answer: "A"
+            },
+            {
+                question: "Which of these is not an example of Primary Source of data collection?",
+                options: {
+                    A: "Artifacts",
+                    B: "Remains",
+                    C: "Quoted materials",
+                    D: "Relics"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Which of these is an example of Secondary Source of data collection?",
+                options: {
+                    A: "Artifacts",
+                    B: "Remains",
+                    C: "Quoted materials",
+                    D: "Relics"
+                },
+                correct_answer: "C"
+            },
+            {
+                question: "Which of these correctly deals with external criticisms in Historical Research?",
+                options: {
+                    A: "Worth",
+                    B: "Accuracy",
+                    C: "Genuineness",
+                    D: "Competence of the witness"
+                },
+                correct_answer: "C"
+            }
+        ];
+        let currentQuestion = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let timeLeft = 30 * 60; // 30 minutes in seconds
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById('question').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            Object.entries(question.options).forEach(([key, value]) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = `option ${userAnswers[currentQuestion] === key ? 'selected' : ''}`;
+                optionDiv.textContent = `${key}: ${value}`;
+                optionDiv.onclick = () => selectOption(key);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextBtn').style.display = currentQuestion === questions.length - 1 ? 'none' : 'block';
+            document.getElementById('submitBtn').style.display = currentQuestion === questions.length - 1 ? 'block' : 'none';
+        }
+
+        function selectOption(option) {
+            userAnswers[currentQuestion] = option;
+            displayQuestion();
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            }
+        }
+
+        function submitTest() {
+            clearInterval(timerInterval);
+            const score = calculateScore();
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = `Your score: ${score} out of ${questions.length}`;
+            
+            // Disable all interactions after submission
+            document.getElementById('prevBtn').disabled = true;
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('submitBtn').disabled = true;
+            document.querySelectorAll('.option').forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+        }
+
+        function calculateScore() {
+            return userAnswers.reduce((score, answer, index) => {
+                return score + (answer === questions[index].correct_answer ? 1 : 0);
+            }, 0);
+        }
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `Time Remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft === 0) {
+                submitTest();
+            } else {
+                timeLeft--;
+            }
+        }
+
+        // Start the quiz
+        displayQuestion();
+        const timerInterval = setInterval(updateTimer, 1000);
+    </script>
+</body>
+</html>
