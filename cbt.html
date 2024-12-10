@@ -5,38 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CBT Question System</title>
     <style>
-        .question-navigation {
-        margin: 20px 0;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-        justify-content: center;
-    }
-
-    .question-nav-btn {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        cursor: pointer;
-        background: white;
-    }
-
-    .question-nav-btn.current {
-        background: #2196f3;
-        color: white;
-    }
-
-    .question-nav-btn.answered {
-        background: #e3f2fd;
-        border-color: #2196f3;
-    }
-
-    .result-details {
-        margin-top: 20px;
-        padding: 15px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
@@ -77,7 +45,6 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
         .option:hover {
@@ -127,127 +94,10 @@
     font-size: 1em;
     box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
 }
-@media screen and (max-width: 768px) {
-        body {
-            padding: 10px;
-            margin: 0;
-            max-width: 100%;
-        }
-        
-        .container {
-            padding: 15px;
-            margin: 10px;
-            border-radius: 8px;
-        }
-        
-        .question-container {
-            margin-bottom: 20px;
-            padding: 10px;
-        }
-        
-        .options {
-            gap: 8px;
-        }
-        
-        .option {
-            padding: 12px;
-            font-size: 16px;
-            margin-bottom: 8px;
-            word-wrap: break-word;
-        }
-        
-        .navigation {
-            margin-top: 20px;
-            padding: 10px 0;
-        }
-        
-        button {
-            min-width: 100px;
-            padding: 12px 20px;
-            font-size: 16px;
-        }
-        
-        .timer {
-            position: sticky;
-            top: 0;
-            background: white;
-            padding: 10px;
-            z-index: 100;
-            border-bottom: 1px solid #eee;
-        }
-    }
-    .question {
-    margin-bottom: 20px;  /* Adds space between question and options */
-    font-size: 1.1em;     /* Optional: makes question text slightly larger */
-}
-
-.options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;            /* Space between options */
-    margin-top: 20px;     /* Additional space after question */
-}
-
-/* For mobile devices */
-@media screen and (max-width: 768px) {
-    .question {
-        margin-bottom: 15px;  /* Slightly less space on mobile */
-    }
-    
-    .options {
-        margin-top: 15px;
-    }
-}
 
 /* Add this to ensure the footer doesn't overlap content */
 .container {
     margin-bottom: 60px; /* Adjust this value based on your footer height */
-}
-
-.question-nav-btn.correct {
-    background: #4caf50;  /* Green for correct answers */
-    color: white;
-    border-color: #45a049;
-}
-
-.question-nav-btn.incorrect {
-    background: #f44336;  /* Red for incorrect answers */
-    color: white;
-    border-color: #da190b;
-}
-
-.question-nav-btn.unanswered {
-    background: #ff9800;  /* Orange for unanswered questions */
-    color: white;
-    border-color: #f57c00;
-}
-
-.answer-tooltip {
-    display: none;
-    position: absolute;
-    background: #333;
-    color: white;
-    padding: 8px;
-    border-radius: 4px;
-    font-size: 14px;
-    z-index: 100;
-    max-width: 200px;
-}
-
-.question-nav-btn:hover .answer-tooltip {
-    display: block;
-}
-
-.option.correct {
-    background: #e8f5e9;  /* Light green background */
-    border-color: #4caf50;
-    color: #2e7d32;
-}
-
-.option.incorrect {
-    background: #ffebee;  /* Light red background */
-    border-color: #f44336;
-    color: #c62828;
 }
     </style>
 </head>
@@ -262,11 +112,9 @@
         <div class="navigation">
             <button id="prevBtn" onclick="previousQuestion()">Previous</button>
             <button id="nextBtn" onclick="nextQuestion()">Next</button>
-            <button id="submitBtn" onclick="submitTest()">Submit Test</button>
+            <button id="submitBtn" onclick="submitTest()" style="display: none;">Submit</button>
         </div>
-        <div class="question-navigation" id="questionNav"></div>
         <div class="result" id="result"></div>
-    </div>    
 
             
         <footer class="footer">
@@ -1171,24 +1019,19 @@
 
             // Update navigation buttons
             document.getElementById('prevBtn').disabled = currentQuestion === 0;
-            document.getElementById('nextBtn').disabled = currentQuestion === questions.length - 1;
-            
-            // Update question navigation
-            createQuestionNavigation();
+            document.getElementById('nextBtn').style.display = currentQuestion === questions.length - 1 ? 'none' : 'block';
+            document.getElementById('submitBtn').style.display = currentQuestion === questions.length - 1 ? 'block' : 'none';
         }
 
-        function createQuestionNavigation() {
-            const nav = document.getElementById('questionNav');
-            nav.innerHTML = '';
-            for (let i = 0; i < questions.length; i++) {
-                const btn = document.createElement('button');
-                btn.className = `question-nav-btn ${i === currentQuestion ? 'current' : ''} ${userAnswers[i] !== null ? 'answered' : ''}`;
-                btn.textContent = i + 1;
-                btn.onclick = () => {
-                    currentQuestion = i;
-                    displayQuestion();
-                };
-                nav.appendChild(btn);
+        function selectOption(option) {
+            userAnswers[currentQuestion] = option;
+            displayQuestion();
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
             }
         }
 
@@ -1199,91 +1042,14 @@
             }
         }
 
-        function previousQuestion() {
-            if (currentQuestion > 0) {
-                currentQuestion--;
-                displayQuestion();
-            }
-        }
-
-        function selectOption(key) {
-            userAnswers[currentQuestion] = key;
-            
-            // Update the visual selection
-            const options = document.querySelectorAll('.option');
-            options.forEach(option => {
-                option.classList.remove('selected');
-                if (option.textContent.startsWith(key + ':')) {
-                    option.classList.add('selected');
-                }
-            });
-            
-            // Update the question navigation to show this question as answered
-            createQuestionNavigation();
-        }
-
         function submitTest() {
-            isTestSubmitted = true; // Set the flag when test is submitted
             clearInterval(timerInterval);
             const score = calculateScore();
             const resultDiv = document.getElementById('result');
             resultDiv.style.display = 'block';
+            resultDiv.textContent = `Your score: ${score} out of ${questions.length}`;
             
-            // Calculate wrong answers
-            const wrongAnswers = questions.length - score;
-            
-            // Show only the summary
-            resultDiv.innerHTML = `
-                <div class="result-details">
-                    <h3>Test Results:</h3>
-                    <p>Total Questions: ${questions.length}</p>
-                    <p>Correct Answers: ${score}</p>
-                    <p>Wrong Answers: ${wrongAnswers}</p>
-                    <p>Score: ${Math.round((score/questions.length) * 100)}%</p>
-                    <p>Review the questions below: Green = Correct, Red = Incorrect, Orange = Unanswered</p>
-                </div>
-            `;
-
-            // Update the question navigation to show results
-            const nav = document.getElementById('questionNav');
-            nav.innerHTML = '';
-            
-            for (let i = 0; i < questions.length; i++) {
-                const btn = document.createElement('button');
-                const userAns = userAnswers[i];
-                const isCorrect = userAns === questions[i].correct_answer;
-                
-                // Set the appropriate class based on the answer status
-                if (userAns === null) {
-                    btn.className = 'question-nav-btn unanswered'; // Unanswered
-                } else {
-                    btn.className = `question-nav-btn ${isCorrect ? 'correct' : 'incorrect'}`; // Correct or Incorrect
-                }
-                
-                btn.textContent = i + 1;
-
-                // Add tooltip with answer information
-                const tooltip = document.createElement('span');
-                tooltip.className = 'answer-tooltip';
-                if (userAns === null) {
-                    tooltip.textContent = 'Not answered. Correct answer: ' + questions[i].correct_answer;
-                } else if (!isCorrect) {
-                    tooltip.textContent = `Your answer: ${userAns}, Correct answer: ${questions[i].correct_answer}`;
-                } else {
-                    tooltip.textContent = 'Correct!';
-                }
-                btn.appendChild(tooltip);
-
-                // Make the button show the question when clicked
-                btn.onclick = () => {
-                    currentQuestion = i;
-                    displayQuestion();
-                };
-                
-                nav.appendChild(btn);
-            }
-            
-            // Disable all interactions except navigation
+            // Disable all interactions after submission
             document.getElementById('prevBtn').disabled = true;
             document.getElementById('nextBtn').disabled = true;
             document.getElementById('submitBtn').disabled = true;
